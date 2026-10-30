@@ -368,12 +368,12 @@
        - ถ้ายังไม่ใส่ (apiKey ว่าง) เว็บจะทำงานในโหมดทดลองด้วย localStorage
        ========================================================= */
     const FIREBASE_CONFIG = {
-      apiKey: "",
-      authDomain: "",
-      projectId: "",
-      storageBucket: "",
-      messagingSenderId: "",
-      appId: ""
+      apiKey: "AIzaSyB-nFH7KZocYSZBr3tVaNGDQI_VJtPgY4Q",
+      authDomain: "camp-vote.firebaseapp.com",
+      projectId: "camp-vote",
+      storageBucket: "camp-vote.firebasestorage.app",
+      messagingSenderId: "204593045673",
+      appId: "1:204593045673:web:23091220e3325fb2f709b8"
     };
 
     // ชื่อ collection ใน Firestore
@@ -443,8 +443,11 @@
 
     // สร้าง document ID จากชื่อ: ตัวพิมพ์เล็ก + encode
     // (encode จุด "." ด้วย เพราะ Firestore ไม่ยอมให้ ID เป็น "." หรือ "..")
+    // (และ ID แบบ __xxx__ เป็นชื่อสงวนของ Firestore จึง encode "_" ตัวแรกทิ้ง)
     function nameToId(name) {
-      return encodeURIComponent(cleanName(name).toLowerCase()).replace(/\./g, "%2E");
+      return encodeURIComponent(cleanName(name).toLowerCase())
+        .replace(/\./g, "%2E")
+        .replace(/^__(.*)__$/, "%5F_$1__");
     }
 
     // สีอวาตาร์ตามชื่อ (ชื่อเดิมได้สีเดิมเสมอ)
