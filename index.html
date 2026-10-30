@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Camp Vote · โหวตวันไปแคมป์</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =========================================================
+       โทนสี (ดีไซน์ขาวคลีนแบบ Apple + กลิ่นอายแคมป์ปิ้งนิดๆ)
+       ========================================================= */
+    :root {
+      --bg: #f5f5f7;
+      --surface: #ffffff;
+      --surface-2: #fbfbfd;
+      --text: #1d1d1f;
+      --text-2: #6e6e73;
+      --text-3: #a1a1a6;
+      --line: rgba(0, 0, 0, 0.08);
+      --forest: #2f7d4f;       /* เขียวป่า */
+      --forest-soft: #e8f3ec;
+      --fire: #ff7a1a;         /* ส้มไฟ */
+      --ember: #e5432f;        /* แดงถ่าน */
+      --gold: #f5b82e;         /* ทอง */
+      --wood: #8a5a3b;         /* น้ำตาลไม้ */
+      --fire-grad: linear-gradient(135deg, #ffb340 0%, #ff7a1a 45%, #e5432f 100%);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 30px rgba(0,0,0,0.06);
+      --shadow-lift: 0 2px 4px rgba(0,0,0,0.05), 0 18px 40px rgba(0,0,0,0.10);
+      --ease: cubic-bezier(0.25, 1, 0.3, 1);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body { margin: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Noto Sans Thai", "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      letter-spacing: -0.01em;
+    }
+
+    /* ---------- แถบนำทางกระจกฝ้า (Liquid glass) ---------- */
+    .nav {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid var(--line);
+      padding-top: env(safe-area-inset-top);
+    }
+    .nav-inner {
+      max-width: 980px; margin: 0 auto; padding: 12px 20px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 17px; }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-links a {
+      color: var(--text-2); text-decoration: none; font-size: 14px;
+      padding: 6px 12px; border-radius: 999px; transition: background .2s, color .2s;
+    }
+    .nav-links a:hover { background: rgba(0,0,0,0.05); color: var(--text); }
+
+    /* ---------- แบนเนอร์สถานะการเชื่อมต่อ ---------- */
+    .status {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 999px;
+      background: #fff4e5; color: #9a5b00;
+    }
+    .status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
+    .status.online { background: var(--forest-soft); color: var(--forest); }
+    .status.online .dot { background: #34c759; box-shadow: 0 0 0 4px rgba(52,199,89,.18); }
+    .status.error { background: #fdecea; color: var(--ember); }
+    .status.error .dot { background: var(--ember); }
+
+    main { max-width: 980px; margin: 0 auto; padding: 0 20px 80px; }
+
+    /* ---------- Hero ---------- */
+    .hero { text-align: center; padding: 56px 0 36px; }
+    .fire {
+      font-size: 64px; display: inline-block; transform-origin: 50% 90%;
+      animation: flicker 1.6s ease-in-out infinite;
+      filter: drop-shadow(0 10px 18px rgba(255, 122, 26, 0.35));
+    }
+    /* แอนิเมชันไฟลุก: ยืด หด เอียงซ้ายขวาเบาๆ */
+    @keyframes flicker {
+      0%, 100% { transform: scale(1) rotate(-2deg); }
+      25% { transform: scale(1.06, 1.12) rotate(2deg); }
+      50% { transform: scale(0.97, 1.04) rotate(-3deg); }
+      75% { transform: scale(1.04, 0.98) rotate(1deg); }
+    }
+    .hero h1 {
+      font-size: clamp(36px, 7vw, 64px); line-height: 1.08; margin: 12px 0 10px;
+      font-weight: 800; letter-spacing: -0.03em;
+    }
+    .hero h1 .grad {
+      background: var(--fire-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .hero p { color: var(--text-2); font-size: clamp(16px, 2.6vw, 21px); margin: 0 auto 18px; max-width: 560px; }
+    .emoji-row { font-size: 22px; letter-spacing: 6px; margin-bottom: 18px; }
+
+    /* ---------- การ์ดหลักของแต่ละส่วน ---------- */
+    .section {
+      background: var(--surface); border-radius: var(--radius-xl);
+      box-shadow: var(--shadow); padding: 28px; margin-bottom: 24px;
+    }
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+    .eyebrow { font-size: 13px; font-weight: 600; color: var(--fire); letter-spacing: 0.02em; margin: 0 0 2px; }
+    .section h2 { font-size: clamp(24px, 4vw, 32px); margin: 0; font-weight: 700; letter-spacing: -0.02em; }
+    .muted { color: var(--text-2); font-size: 14px; }
+
+    /* ---------- ช่องกรอกชื่อ ---------- */
+    .field { position: relative; margin-bottom: 8px; }
+    .field input {
+      width: 100%; font: inherit; font-size: 17px; color: var(--text);
+      padding: 16px 64px 16px 18px; border-radius: var(--radius-md);
+      border: 1px solid var(--line); background: var(--surface-2);
+      outline: none; transition: border-color .2s, box-shadow .2s, background .2s;
+    }
+    .field input:focus { border-color: var(--fire); background: #fff; box-shadow: 0 0 0 4px rgba(255,122,26,.15); }
+    .field .count { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--text-3); }
+    .hint { font-size: 14px; min-height: 22px; color: var(--text-2); margin: 0 0 18px; }
+    .hint.edit { color: var(--forest); font-weight: 500; }
+
+    /* ---------- กลุ่มเดือนและการ์ดวันที่ ---------- */
+    .month { margin-top: 22px; }
+    .month-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: var(--text-2); margin: 0 0 12px; }
+    .month-title::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+    .date-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+
+    .date-card {
+      position: relative; text-align: left; font: inherit; color: inherit; cursor: pointer;
+      background: var(--surface-2); border: 1.5px solid var(--line); border-radius: var(--radius-lg);
+      padding: 16px 16px 14px; min-height: 104px;
+      transition: transform .25s var(--ease), box-shadow .25s var(--ease), border-color .2s, background .2s;
+    }
+    .date-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+    .date-card:active { transform: scale(0.97); }
+    .date-card .days { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+    .date-card .mon { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+    .date-card .note {
+      display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 600;
+      padding: 3px 9px; border-radius: 999px; background: #fff4e5; color: #b5560b;
+    }
+    .date-card .check {
+      position: absolute; top: 12px; right: 12px; width: 26px; height: 26px; border-radius: 50%;
+      border: 1.5px solid var(--text-3); display: grid; place-items: center;
+      color: #fff; font-size: 14px; font-weight: 800; transition: all .25s var(--ease);
+    }
+    .date-card.selected { border-color: var(--fire); background: #fff8f2; box-shadow: 0 0 0 4px rgba(255,122,26,.12); }
+    .date-card.selected .check { background: var(--fire-grad); border-color: transparent; transform: scale(1.05); }
+    .date-card:not(.selected) .check span { opacity: 0; }
+
+    /* ---------- แถบปุ่มด้านล่างฟอร์ม ---------- */
+    .actions {
+      position: sticky; bottom: 12px; z-index: 20; margin-top: 26px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      padding: 12px 12px 12px 20px; border-radius: 999px;
+      background: rgba(255,255,255,0.78); border: 1px solid var(--line);
+      backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
+      box-shadow: var(--shadow-lift);
+    }
+    .picked { font-size: 15px; color: var(--text-2); }
+    .picked b { color: var(--text); font-size: 18px; }
+    .btns { display: flex; gap: 8px; margin-left: auto; }
+
+    .btn {
+      font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; border: none;
+      padding: 12px 22px; border-radius: 999px; white-space: nowrap; transition: transform .15s var(--ease), box-shadow .2s, opacity .2s, background .2s;
+    }
+    .btn:active { transform: scale(0.95) translateY(1px); }
+    .btn:disabled { opacity: .5; cursor: progress; }
+    /* ปุ่มหลักไล่เฉดสีไฟ มีเงาเรืองๆ */
+    .btn-fire { color: #fff; background: var(--fire-grad); box-shadow: 0 6px 18px rgba(229, 67, 47, 0.30), inset 0 1px 0 rgba(255,255,255,.3); }
+    .btn-fire:hover { box-shadow: 0 10px 26px rgba(229, 67, 47, 0.38), inset 0 1px 0 rgba(255,255,255,.3); }
+    .btn-fire:active { box-shadow: 0 2px 8px rgba(229, 67, 47, 0.30), inset 0 2px 4px rgba(0,0,0,.12); }
+    .btn-ghost { background: rgba(0,0,0,0.05); color: var(--text); }
+    .btn-ghost:hover { background: rgba(0,0,0,0.08); }
+    .btn-sm { font-size: 13px; padding: 7px 14px; }
+    .btn-danger { background: #fdecea; color: var(--ember); }
+    .btn-danger:hover { background: #fbd9d4; }
+
+    /* ---------- กล่องข้อความแจ้งผล ---------- */
+    .msg { margin-top: 14px; font-size: 14px; padding: 12px 16px; border-radius: var(--radius-md); display: none; }
+    .msg.show { display: block; animation: rise .35s var(--ease); }
+    .msg.ok { background: var(--forest-soft); color: var(--forest); }
+    .msg.err { background: #fdecea; color: var(--ember); }
+    .msg code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; background: rgba(0,0,0,.06); padding: 1px 6px; border-radius: 6px; }
+
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    /* ---------- กล่องสรุปวันที่ชนะ ---------- */
+    .winner {
+      position: relative; overflow: hidden; border-radius: var(--radius-lg);
+      padding: 24px; margin-bottom: 22px; color: #fff;
+      background: radial-gradient(120% 140% at 0% 0%, #3b9a63 0%, #2f7d4f 45%, #1f5a38 100%);
+    }
+    .winner::after {
+      content: "🌲🏕️🌲"; position: absolute; right: 18px; bottom: 6px; font-size: 44px; opacity: .25; letter-spacing: -6px;
+    }
+    .winner .label { font-size: 13px; font-weight: 600; opacity: .8; }
+    .winner .title { font-size: clamp(24px, 5vw, 34px); font-weight: 800; letter-spacing: -0.02em; margin: 4px 0 6px; }
+    .winner .sub { font-size: 15px; opacity: .9; }
+    .winner.empty { background: var(--surface-2); color: var(--text-2); border: 1.5px dashed var(--line); }
+    .winner.empty::after { opacity: .12; }
+
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 22px; }
+    .stat { background: var(--surface-2); border-radius: var(--radius-md); padding: 14px 16px; }
+    .stat .n { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+    .stat .l { font-size: 13px; color: var(--text-2); }
+
+    /* ---------- แถบกราฟผลโหวต ---------- */
+    .result { padding: 14px 0; border-top: 1px solid var(--line); }
+    .result:first-child { border-top: none; }
+    .result-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+    .result-name { font-weight: 700; font-size: 16px; }
+    .result-name small { font-weight: 500; color: var(--text-2); font-size: 13px; margin-left: 6px; }
+    .result-count { font-size: 14px; color: var(--text-2); white-space: nowrap; }
+    .result-count b { color: var(--text); font-size: 16px; }
+    .bar { height: 10px; border-radius: 999px; background: rgba(0,0,0,0.06); overflow: hidden; }
+    .bar > i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #6fcf97, var(--forest)); transition: width .8s var(--ease); }
+    .result.top .bar > i { background: var(--fire-grad); }
+    .result.top .result-name::before { content: "🔥 "; }
+    .result.top { background: linear-gradient(90deg, rgba(255,179,64,.10), transparent 70%); margin: 0 -14px; padding: 14px; border-radius: var(--radius-md); border-top-color: transparent; }
+    .result.top + .result { border-top-color: transparent; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .chip { font-size: 13px; font-weight: 500; padding: 4px 11px; border-radius: 999px; background: rgba(0,0,0,0.05); color: var(--text); }
+    .result.top .chip { background: #fff1e3; color: #a24a07; }
+
+    /* ---------- รายชื่อคนที่โหวตแล้ว ---------- */
+    .voters { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+    .voter { background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 16px; display: flex; flex-direction: column; gap: 10px; animation: rise .35s var(--ease); }
+    .voter-head { display: flex; align-items: center; gap: 10px; }
+    .avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #fff; flex: none; }
+    .voter-name { font-weight: 700; font-size: 16px; word-break: break-word; }
+    .voter-meta { font-size: 12px; color: var(--text-2); }
+    .voter .chip { background: #fff; border: 1px solid var(--line); }
+    .voter-actions { display: flex; gap: 6px; margin-top: auto; }
+
+    .empty-state { text-align: center; color: var(--text-2); padding: 28px 10px; }
+    .empty-state .big { font-size: 40px; display: block; margin-bottom: 6px; }
+
+    footer { text-align: center; color: var(--text-3); font-size: 13px; padding: 10px 20px 40px; }
+
+    /* ---------- มือถือ ---------- */
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .hero { padding: 36px 0 24px; }
+      .fire { font-size: 54px; }
+      .section { padding: 20px 16px; border-radius: 24px; }
+      .date-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .date-card { min-height: 96px; padding: 14px 12px 12px; }
+      .date-card .days { font-size: 22px; }
+      .actions { border-radius: 22px; padding: 12px; bottom: calc(10px + env(safe-area-inset-bottom)); }
+      .picked { width: 100%; text-align: center; }
+      .btns { width: 100%; margin-left: 0; }
+      .btns .btn { flex: 1; }
+      .btns .btn-fire { flex: 2; }
+      .stats { gap: 8px; }
+      .stat { padding: 12px; }
+      .stat .n { font-size: 22px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- แถบนำทางด้านบน -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="brand">⛺ Camp Vote</div>
+      <div class="nav-links">
+        <a href="#vote">โหวต</a>
+        <a href="#results">ผลโหวต</a>
+        <a href="#voters">คนที่โหวต</a>
+      </div>
+      <div id="status" class="status"><span class="dot"></span><span id="statusText">กำลังเชื่อมต่อ…</span></div>
+    </div>
+  </nav>
+
+  <main>
+    <!-- ส่วนหัว -->
+    <header class="hero">
+      <div class="fire" aria-hidden="true">🔥</div>
+      <h1>ไปแคมป์กัน<br /><span class="grad">วันไหนดี?</span></h1>
+      <p>ใส่ชื่อ แล้วจิ้มวันที่ว่างได้เลยหลายวัน เดี๋ยวระบบหาวันที่แก๊งว่างตรงกันมากที่สุดให้เอง</p>
+      <div class="emoji-row" aria-hidden="true">🌲 ⛺ 🍖 🥩 🍢 🏕️</div>
+    </header>
+
+    <!-- ส่วนโหวต -->
+    <section class="section" id="vote">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">ขั้นที่ 1</p>
+          <h2>เลือกวันที่ว่าง</h2>
+        </div>
+        <span class="muted">เลือกได้มากกว่า 1 วันนะ</span>
+      </div>
+
+      <div class="field">
+        <input id="nameInput" type="text" maxlength="30" placeholder="ชื่อเล่นของคุณ" autocomplete="off" enterkeyhint="done" />
+        <span class="count" id="nameCount">0/30</span>
+      </div>
+      <p class="hint" id="nameHint">พิมพ์ชื่อเดิมที่เคยโหวต จะดึงวันที่เลือกไว้มาให้แก้ได้เลย</p>
+
+      <div id="dateGroups"></div>
+
+      <div class="actions">
+        <div class="picked">เลือกแล้ว <b id="pickedCount">0</b> วัน</div>
+        <div class="btns">
+          <button class="btn btn-ghost" id="clearBtn" type="button">ล้างที่เลือก</button>
+          <button class="btn btn-fire" id="saveBtn" type="button">บันทึกโหวต 🔥</button>
+        </div>
+      </div>
+      <div class="msg" id="msg" role="status" aria-live="polite"></div>
+    </section>
+
+    <!-- ส่วนสรุปผล -->
+    <section class="section" id="results">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">ขั้นที่ 2</p>
+          <h2>ผลโหวตสดๆ</h2>
+        </div>
+        <span class="muted">อัปเดตอัตโนมัติแบบเรียลไทม์</span>
+      </div>
+      <div id="winner" class="winner empty"></div>
+      <div class="stats">
+        <div class="stat"><div class="n" id="statVoters">0</div><div class="l">คนโหวตแล้ว</div></div>
+        <div class="stat"><div class="n" id="statTop">0</div><div class="l">ว่างมากสุด</div></div>
+        <div class="stat"><div class="n" id="statDates">0</div><div class="l">วันให้เลือก</div></div>
+      </div>
+      <div id="resultList"></div>
+    </section>
+
+    <!-- ส่วนรายชื่อ -->
+    <section class="section" id="voters">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">ขั้นที่ 3</p>
+          <h2>ใครโหวตแล้วบ้าง</h2>
+        </div>
+      </div>
+      <div id="voterList"></div>
+    </section>
+  </main>
+
+  <footer>ทำด้วย 🔥 และหมูกระทะ · Camp Vote</footer>
+
+  <script type="module">
+    /* =========================================================
+       ตั้งค่า Firebase
+       - ไปที่ Firebase Console > Project settings > Your apps > Web app
+       - คัดลอกค่า config มาใส่ตรงนี้
+       - ถ้ายังไม่ใส่ (apiKey ว่าง) เว็บจะทำงานในโหมดทดลองด้วย localStorage
+       ========================================================= */
+    const FIREBASE_CONFIG = {
+      apiKey: "",
+      authDomain: "",
+      projectId: "",
+      storageBucket: "",
+      messagingSenderId: "",
+      appId: ""
+    };
+
+    // ชื่อ collection ใน Firestore
+    const COLLECTION = "votes";
+
+    // เวอร์ชันของ Firebase SDK ที่โหลดจาก gstatic
+    const FIREBASE_VERSION = "10.12.2";
+
+    /* =========================================================
+       ข้อมูลวันที่ให้เลือก (แก้ไข/เพิ่มได้ที่นี่ที่เดียว)
+       - id ต้องไม่ซ้ำกัน และห้ามเปลี่ยนหลังเริ่มโหวตแล้ว (โหวตเก่าจะหาไม่เจอ)
+       - note ใส่หรือไม่ใส่ก็ได้
+       ========================================================= */
+    const MONTHS = [
+      {
+        key: "2026-11", label: "พฤศจิกายน 2569", short: "พ.ย.", emoji: "🍂",
+        dates: [
+          { id: "2026-11-07", days: "7–8" },
+          { id: "2026-11-14", days: "14–15" },
+          { id: "2026-11-21", days: "21–22", note: "ขึ้นดอย มอชอ" },
+          { id: "2026-11-28", days: "28–29" }
+        ]
+      },
+      {
+        key: "2026-12", label: "ธันวาคม 2569", short: "ธ.ค.", emoji: "❄️",
+        dates: [
+          { id: "2026-12-05", days: "5–6–7", note: "หยุดยาว" },
+          { id: "2026-12-12", days: "12–13" },
+          { id: "2026-12-19", days: "19–20" },
+          { id: "2026-12-26", days: "26–27", note: "คริสต์มาส" },
+          { id: "2026-12-30", days: "30–31", note: "ปีใหม่" }
+        ]
+      },
+      {
+        key: "2027-01", label: "มกราคม 2570", short: "ม.ค.", emoji: "🎆",
+        dates: [
+          { id: "2027-01-01", days: "1–4", note: "ปีใหม่" },
+          { id: "2027-01-09", days: "9–10" },
+          { id: "2027-01-16", days: "16–17" },
+          { id: "2027-01-23", days: "23–24" },
+          { id: "2027-01-30", days: "30–31" }
+        ]
+      }
+    ];
+
+    // แปลงข้อมูลเป็นรายการเดียว พร้อมแนบชื่อเดือนไว้ใช้แสดงผล
+    const ALL_DATES = MONTHS.flatMap(m => m.dates.map(d => ({ ...d, month: m.short, monthLabel: m.label })));
+    const DATE_MAP = Object.fromEntries(ALL_DATES.map(d => [d.id, d]));
+
+    /* =========================================================
+       ตัวช่วยทั่วไป
+       ========================================================= */
+    const $ = (id) => document.getElementById(id);
+
+    // escape ข้อความก่อนใส่ลง innerHTML ทุกครั้ง เพื่อกัน XSS
+    function esc(str) {
+      return String(str ?? "").replace(/[&<>"'`=\/]/g, ch => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;",
+        "'": "&#39;", "`": "&#96;", "=": "&#61;", "/": "&#47;"
+      })[ch]);
+    }
+
+    // ทำความสะอาดชื่อ: ตัดช่องว่างหัวท้าย ยุบช่องว่างซ้อน และจำกัด 30 ตัวอักษร
+    function cleanName(name) {
+      return String(name || "").replace(/\s+/g, " ").trim().slice(0, 30);
+    }
+
+    // สร้าง document ID จากชื่อ: ตัวพิมพ์เล็ก + encode
+    // (encode จุด "." ด้วย เพราะ Firestore ไม่ยอมให้ ID เป็น "." หรือ "..")
+    function nameToId(name) {
+      return encodeURIComponent(cleanName(name).toLowerCase()).replace(/\./g, "%2E");
+    }
+
+    // สีอวาตาร์ตามชื่อ (ชื่อเดิมได้สีเดิมเสมอ)
+    const AVATAR_COLORS = ["#ff7a1a", "#2f7d4f", "#e5432f", "#f5b82e", "#8a5a3b", "#0a84ff", "#af52de", "#30b0c7"];
+    function avatarColor(name) {
+      let h = 0;
+      for (const ch of name) h = (h * 31 + ch.codePointAt(0)) >>> 0;
+      return AVATAR_COLORS[h % AVATAR_COLORS.length];
+    }
+
+    // แปลงเวลา updatedAt (Firestore Timestamp หรือตัวเลข) เป็นข้อความ
+    function timeText(t) {
+      const ms = t?.toMillis ? t.toMillis() : (typeof t === "number" ? t : null);
+      if (!ms) return "เพิ่งบันทึก";
+      return new Date(ms).toLocaleString("th-TH", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+    }
+
+    function setStatus(kind, text) {
+      $("status").className = "status " + kind;
+      $("statusText").textContent = text;
+    }
+
+    let msgTimer;
+    function showMsg(kind, html) {
+      const el = $("msg");
+      el.className = "msg show " + kind;
+      el.innerHTML = html; // เรียกใช้เฉพาะข้อความที่ escape แล้วเท่านั้น
+      clearTimeout(msgTimer);
+      if (kind === "ok") msgTimer = setTimeout(() => el.classList.remove("show"), 4000);
+    }
+
+    /* =========================================================
+       ชั้นจัดเก็บข้อมูล (Storage)
+       มี 2 แบบที่หน้าตาฟังก์ชันเหมือนกัน:
+       1) Firestore (ออนไลน์ เรียลไทม์)
+       2) localStorage (โหมดทดลอง เก็บในเครื่องตัวเอง)
+       ========================================================= */
+    const hasConfig = Boolean(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
+
+    // โหมดทดลอง: เก็บทุกคนไว้ใน key เดียวเป็น object { docId: {name, dates, updatedAt} }
+    function createLocalStore() {
+      const KEY = "camp-vote-demo";
+      const listeners = new Set();
+      const read = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
+      const write = (data) => { localStorage.setItem(KEY, JSON.stringify(data)); emit(); };
+      const emit = () => {
+        const list = Object.entries(read()).map(([id, v]) => ({ id, ...v }));
+        listeners.forEach(cb => cb(list));
+      };
+      // อัปเดตข้ามแท็บในเครื่องเดียวกัน
+      window.addEventListener("storage", (e) => { if (e.key === KEY) emit(); });
+      return {
+        mode: "local",
+        subscribe(cb) { listeners.add(cb); emit(); return () => listeners.delete(cb); },
+        async save(name, dates) {
+          const data = read();
+          data[nameToId(name)] = { name, dates, updatedAt: Date.now() };
+          write(data);
+        },
+        async remove(id) { const data = read(); delete data[id]; write(data); }
+      };
+    }
+
+    // โหมดออนไลน์: โหลด Firebase SDK แบบ modular จาก gstatic
+    async function createFirestoreStore() {
+      const base = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}`;
+      const { initializeApp } = await import(`${base}/firebase-app.js`);
+      const fs = await import(`${base}/firebase-firestore.js`);
+      const app = initializeApp(FIREBASE_CONFIG);
+      const db = fs.getFirestore(app);
+      const col = fs.collection(db, COLLECTION);
+      return {
+        mode: "firestore",
+        subscribe(cb, onError) {
+          // onSnapshot ฟังการเปลี่ยนแปลงแบบเรียลไทม์
+          return fs.onSnapshot(col,
+            (snap) => cb(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
+            onError);
+        },
+        async save(name, dates) {
+          // ใช้ setDoc กับ ID จากชื่อ → ชื่อเดิมจะบันทึกทับ ไม่สร้างซ้ำ
+          await fs.setDoc(fs.doc(db, COLLECTION, nameToId(name)), {
+            name, dates, updatedAt: fs.serverTimestamp()
+          });
+        },
+        async remove(id) { await fs.deleteDoc(fs.doc(db, COLLECTION, id)); }
+      };
+    }
+
+    /* =========================================================
+       สถานะของหน้าเว็บ
+       ========================================================= */
+    let store = null;
+    let votes = [];                 // โหวตทั้งหมดจากฐานข้อมูล
+    const selected = new Set();     // วันที่ผู้ใช้กำลังเลือกอยู่
+    let loadedFor = "";             // docId ของคนที่โหลดโหวตเดิมมาแล้ว (กันโหลดทับตอนกำลังแก้)
+
+    /* =========================================================
+       วาดการ์ดวันที่ (ทำครั้งเดียว)
+       ========================================================= */
+    function renderDateCards() {
+      $("dateGroups").innerHTML = MONTHS.map(m => `
+        <div class="month">
+          <h3 class="month-title">${m.emoji} ${esc(m.label)}</h3>
+          <div class="date-grid">
+            ${m.dates.map(d => `
+              <button type="button" class="date-card" data-id="${esc(d.id)}" aria-pressed="false">
+                <span class="check"><span>✓</span></span>
+                <div class="days">${esc(d.days)}</div>
+                <div class="mon">${esc(m.short)} · เสาร์–อาทิตย์</div>
+                ${d.note ? `<span class="note">${esc(d.note)}</span>` : ""}
+              </button>`).join("")}
+          </div>
+        </div>`).join("");
+
+      $("dateGroups").addEventListener("click", (e) => {
+        const card = e.target.closest(".date-card");
+        if (!card) return;
+        const id = card.dataset.id;
+        selected.has(id) ? selected.delete(id) : selected.add(id);
+        syncSelection();
+      });
+    }
+
+    // อัปเดตหน้าตาการ์ดตามวันที่เลือก + ตัวนับ
+    function syncSelection() {
+      document.querySelectorAll(".date-card").forEach(card => {
+        const on = selected.has(card.dataset.id);
+        card.classList.toggle("selected", on);
+        card.setAttribute("aria-pressed", on);
+      });
+      $("pickedCount").textContent = selected.size;
+    }
+
+    /* =========================================================
+       ช่องกรอกชื่อ: ถ้าเจอชื่อเดิม ให้โหลดโหวตเก่ามาแก้
+       ========================================================= */
+    function onNameChange() {
+      const raw = $("nameInput").value;
+      $("nameCount").textContent = `${raw.length}/30`;
+      const name = cleanName(raw);
+      const hint = $("nameHint");
+      if (!name) {
+        hint.className = "hint";
+        hint.textContent = "พิมพ์ชื่อเดิมที่เคยโหวต จะดึงวันที่เลือกไว้มาให้แก้ได้เลย";
+        loadedFor = "";
+        return;
+      }
+      const id = nameToId(name);
+      const existing = votes.find(v => v.id === id);
+      if (existing) {
+        hint.className = "hint edit";
+        hint.innerHTML = `👋 เจอโหวตของ <b>${esc(existing.name)}</b> แล้ว แก้วันที่แล้วกดบันทึกทับได้เลย`;
+        // โหลดโหวตเดิมเฉพาะครั้งแรกที่เจอชื่อนี้ จะได้ไม่ทับสิ่งที่กำลังแก้
+        if (loadedFor !== id) {
+          loadedFor = id;
+          selected.clear();
+          (existing.dates || []).forEach(d => DATE_MAP[d] && selected.add(d));
+          syncSelection();
+        }
+      } else {
+        hint.className = "hint";
+        hint.textContent = "✨ ชื่อใหม่ เลือกวันที่ว่างแล้วกดบันทึกได้เลย";
+        // ถ้าก่อนหน้านี้โหลดโหวตของคนอื่นไว้ ให้ล้างออก จะได้ไม่ติดวันของคนเก่ามา
+        if (loadedFor) { loadedFor = ""; clearSelection(); }
+      }
+    }
+
+    /* =========================================================
+       บันทึก / ล้าง / แก้ไข / ลบ
+       ========================================================= */
+    async function saveVote() {
+      const name = cleanName($("nameInput").value);
+      // ตรวจสอบก่อนบันทึก
+      if (!name) { showMsg("err", "ใส่ชื่อก่อนน้า 🙏"); $("nameInput").focus(); return; }
+      if (selected.size === 0) { showMsg("err", "เลือกวันที่ว่างอย่างน้อย 1 วันก่อนนะ 📅"); return; }
+      if (!store) { showMsg("err", "ยังเชื่อมต่อฐานข้อมูลไม่เสร็จ รอแป๊บนึงนะ"); return; }
+
+      const btn = $("saveBtn");
+      btn.disabled = true;
+      btn.textContent = "กำลังบันทึก…";
+      try {
+        // เรียงวันที่ตามลำดับใน MONTHS ก่อนบันทึก
+        const dates = ALL_DATES.map(d => d.id).filter(id => selected.has(id));
+        const isUpdate = votes.some(v => v.id === nameToId(name));
+        await store.save(name, dates);
+        loadedFor = nameToId(name);
+        showMsg("ok", `${isUpdate ? "อัปเดต" : "บันทึก"}โหวตของ <b>${esc(name)}</b> แล้ว ${dates.length} วัน 🎉 เจอกันรอบกองไฟ!`);
+      } catch (err) {
+        console.error(err);
+        // แสดงรหัส error ให้เห็นบนหน้าเว็บ
+        showMsg("err", `บันทึกไม่สำเร็จ 😢 รหัส error: <code>${esc(err?.code || err?.name || "unknown")}</code>`);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "บันทึกโหวต 🔥";
+      }
+    }
+
+    function clearSelection() {
+      selected.clear();
+      syncSelection();
+    }
+
+    function editVote(id) {
+      const v = votes.find(x => x.id === id);
+      if (!v) return;
+      $("nameInput").value = v.name;
+      loadedFor = ""; // บังคับให้โหลดวันที่เดิมใหม่
+      onNameChange();
+      document.getElementById("vote").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    async function deleteVote(id) {
+      const v = votes.find(x => x.id === id);
+      if (!v || !confirm(`ลบโหวตของ "${v.name}" ใช่ไหม?`)) return;
+      try {
+        await store.remove(id);
+        if (loadedFor === id) { loadedFor = ""; clearSelection(); }
+        showMsg("ok", `ลบโหวตของ <b>${esc(v.name)}</b> แล้ว`);
+      } catch (err) {
+        console.error(err);
+        showMsg("err", `ลบไม่สำเร็จ 😢 รหัส error: <code>${esc(err?.code || err?.name || "unknown")}</code>`);
+      }
+    }
+
+    /* =========================================================
+       วาดผลโหวตและรายชื่อ (เรียกทุกครั้งที่ข้อมูลเปลี่ยน)
+       ========================================================= */
+    function renderResults() {
+      const total = votes.length;
+
+      // นับว่าแต่ละวันมีใครว่างบ้าง
+      const tally = ALL_DATES.map(d => ({
+        ...d,
+        people: votes.filter(v => (v.dates || []).includes(d.id)).map(v => v.name)
+      }));
+      const max = Math.max(0, ...tally.map(t => t.people.length));
+      const winners = max > 0 ? tally.filter(t => t.people.length === max) : [];
+
+      $("statVoters").textContent = total;
+      $("statTop").textContent = total ? `${max}/${total}` : "0";
+      $("statDates").textContent = ALL_DATES.length;
+
+      // กล่องสรุปวันที่ชนะ
+      const w = $("winner");
+      if (!winners.length) {
+        w.className = "winner empty";
+        w.innerHTML = `<div class="label">ยังไม่มีผู้ชนะ</div><div class="title">รอโหวตแรกอยู่นะ ⛺</div><div class="sub">ชวนเพื่อนในแก๊งมาโหวตกันเลย</div>`;
+      } else {
+        const names = winners.map(t => `${t.days} ${t.month}`).join(" · ");
+        const allFree = max === total;
+        w.className = "winner";
+        w.innerHTML = `
+          <div class="label">${winners.length > 1 ? "🏆 ตอนนี้มีวันที่คะแนนเท่ากัน" : "🏆 วันที่ว่างตรงกันมากที่สุด"}</div>
+          <div class="title">${esc(names)}</div>
+          <div class="sub">${allFree ? "ว่างครบทุกคน! จองลานกางเต็นท์ได้เลย 🍖" : `ว่าง ${max} จาก ${total} คน`}</div>`;
+      }
+
+      // แถบกราฟของแต่ละวัน
+      $("resultList").innerHTML = tally.map(t => {
+        const n = t.people.length;
+        const pct = total ? Math.round((n / total) * 100) : 0;
+        const isTop = n > 0 && n === max;
+        return `
+          <div class="result ${isTop ? "top" : ""}">
+            <div class="result-top">
+              <div class="result-name">${esc(t.days)} ${esc(t.month)}${t.note ? `<small>${esc(t.note)}</small>` : ""}</div>
+              <div class="result-count"><b>${n}</b>/${total} คน</div>
+            </div>
+            <div class="bar"><i data-w="${pct}"></i></div>
+            ${n ? `<div class="chips">${t.people.map(p => `<span class="chip">${esc(p)}</span>`).join("")}</div>` : ""}
+          </div>`;
+      }).join("");
+
+      // ให้แถบกราฟค่อยๆ ยืดออก
+      requestAnimationFrame(() => {
+        document.querySelectorAll(".bar > i").forEach(i => { i.style.width = i.dataset.w + "%"; });
+      });
+    }
+
+    function renderVoters() {
+      const list = $("voterList");
+      if (!votes.length) {
+        list.innerHTML = `<div class="empty-state"><span class="big">🏕️</span>ยังไม่มีใครโหวตเลย เป็นคนแรกสิ!</div>`;
+        return;
+      }
+      // เรียงตามชื่อ
+      const sorted = [...votes].sort((a, b) => String(a.name).localeCompare(String(b.name), "th"));
+      list.innerHTML = `<div class="voters">${sorted.map(v => {
+        const dates = (v.dates || []).filter(id => DATE_MAP[id]);
+        const initial = [...String(v.name || "?")][0];
+        return `
+          <div class="voter">
+            <div class="voter-head">
+              <div class="avatar" style="background:${avatarColor(String(v.name))}">${esc(initial)}</div>
+              <div>
+                <div class="voter-name">${esc(v.name)}</div>
+                <div class="voter-meta">ว่าง ${dates.length} วัน · ${esc(timeText(v.updatedAt))}</div>
+              </div>
+            </div>
+            <div class="chips">${dates.map(id => `<span class="chip">${esc(DATE_MAP[id].days)} ${esc(DATE_MAP[id].month)}</span>`).join("")}</div>
+            <div class="voter-actions">
+              <button class="btn btn-ghost btn-sm" data-edit="${esc(v.id)}">✏️ แก้ไข</button>
+              <button class="btn btn-danger btn-sm" data-del="${esc(v.id)}">🗑️ ลบ</button>
+            </div>
+          </div>`;
+      }).join("")}</div>`;
+    }
+
+    // ปุ่มแก้ไข/ลบ ใช้ event delegation (ไม่ต้องผูก onclick ใน HTML)
+    $("voterList").addEventListener("click", (e) => {
+      const edit = e.target.closest("[data-edit]");
+      const del = e.target.closest("[data-del]");
+      if (edit) editVote(edit.dataset.edit);
+      if (del) deleteVote(del.dataset.del);
+    });
+
+    // เมื่อข้อมูลในฐานข้อมูลเปลี่ยน
+    function onVotes(list) {
+      votes = list.filter(v => v && v.name);
+      renderResults();
+      renderVoters();
+      // ถ้ากำลังพิมพ์ชื่ออยู่ ให้เช็กอีกรอบเผื่อมีโหวตเดิมเพิ่งโหลดมา
+      if (cleanName($("nameInput").value)) onNameChange();
+    }
+
+    /* =========================================================
+       เริ่มต้นใช้งาน
+       ========================================================= */
+    renderDateCards();
+    syncSelection();
+    renderResults();
+    renderVoters();
+
+    $("nameInput").addEventListener("input", onNameChange);
+    $("nameInput").addEventListener("keydown", (e) => { if (e.key === "Enter") e.target.blur(); });
+    $("saveBtn").addEventListener("click", saveVote);
+    $("clearBtn").addEventListener("click", clearSelection);
+
+    async function connect() {
+      if (!hasConfig) {
+        store = createLocalStore();
+        setStatus("", "โหมดทดลอง (เก็บในเครื่องนี้)");
+        store.subscribe(onVotes);
+        return;
+      }
+      try {
+        store = await createFirestoreStore();
+        setStatus("", "กำลังเชื่อมต่อ…");
+        store.subscribe(
+          (list) => { setStatus("online", "ออนไลน์ · เรียลไทม์"); onVotes(list); },
+          (err) => { console.error(err); setStatus("error", `เชื่อมต่อไม่ได้ (${err.code || "error"})`); }
+        );
+      } catch (err) {
+        // โหลด SDK ไม่ได้ (เช่น เน็ตหลุด) → ถอยไปใช้โหมดทดลอง
+        console.error(err);
+        store = createLocalStore();
+        setStatus("error", "โหลด Firebase ไม่ได้ · ใช้โหมดทดลอง");
+        store.subscribe(onVotes);
+      }
+    }
+    connect();
+  </script>
+</body>
+</html>
