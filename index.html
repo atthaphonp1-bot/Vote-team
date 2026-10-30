@@ -135,30 +135,46 @@
     .month { margin-top: 22px; }
     .month-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: var(--text-2); margin: 0 0 12px; }
     .month-title::after { content: ""; flex: 1; height: 1px; background: var(--line); }
-    .date-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-
-    .date-card {
-      position: relative; text-align: left; font: inherit; color: inherit; cursor: pointer;
-      background: var(--surface-2); border: 1.5px solid var(--line); border-radius: var(--radius-lg);
-      padding: 16px 16px 14px; min-height: 104px;
-      transition: transform .25s var(--ease), box-shadow .25s var(--ease), border-color .2s, background .2s;
+    /* ---------- ปฏิทิน ---------- */
+    .cal { background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 14px; }
+    .cal-head, .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+    .cal-head { margin-bottom: 6px; }
+    .cal-head span { text-align: center; font-size: 12px; font-weight: 600; color: var(--text-3); padding: 4px 0; }
+    .cal-head span.we { color: var(--fire); }
+    .cal-grid { row-gap: 6px; }
+    .day {
+      position: relative; height: 52px; display: flex; align-items: center; justify-content: center;
+      font: inherit; font-size: 16px; font-weight: 500; color: var(--text-3); border: none; background: none; padding: 0;
     }
-    .date-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
-    .date-card:active { transform: scale(0.97); }
-    .date-card .days { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
-    .date-card .mon { font-size: 13px; color: var(--text-2); margin-top: 2px; }
-    .date-card .note {
-      display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 600;
-      padding: 3px 9px; border-radius: 999px; background: #fff4e5; color: #b5560b;
+    /* วันที่อยู่ในช่วงให้เลือก: ต่อกันเป็นแถบ มุมโค้งเฉพาะหัวท้าย */
+    .day.opt {
+      cursor: pointer; color: var(--text); font-weight: 700; background: #fff1e3;
+      transition: background .2s, color .2s, transform .15s var(--ease);
     }
-    .date-card .check {
-      position: absolute; top: 12px; right: 12px; width: 26px; height: 26px; border-radius: 50%;
-      border: 1.5px solid var(--text-3); display: grid; place-items: center;
-      color: #fff; font-size: 14px; font-weight: 800; transition: all .25s var(--ease);
+    .day.opt.r-start { border-top-left-radius: 14px; border-bottom-left-radius: 14px; margin-left: 2px; }
+    .day.opt.r-end { border-top-right-radius: 14px; border-bottom-right-radius: 14px; margin-right: 2px; }
+    .day.opt:hover { background: #ffe4c8; }
+    .day.opt:active { transform: scale(0.94); }
+    .day.opt.selected { background: var(--fire); color: #fff; }
+    .day.opt.selected:hover { background: #f26c0c; }
+    .day.opt.has-note::after {
+      content: ""; position: absolute; bottom: 7px; left: 50%; width: 5px; height: 5px; margin-left: -2.5px;
+      border-radius: 50%; background: var(--forest);
     }
-    .date-card.selected { border-color: var(--fire); background: #fff8f2; box-shadow: 0 0 0 4px rgba(255,122,26,.12); }
-    .date-card.selected .check { background: var(--fire-grad); border-color: transparent; transform: scale(1.05); }
-    .date-card:not(.selected) .check span { opacity: 0; }
+    .day.opt.selected.has-note::after { background: #fff; }
+    /* ป้ายจำนวนคนที่ว่าง (แสดงที่วันแรกของแต่ละช่วง) */
+    .day .cnt {
+      position: absolute; top: -6px; right: -2px; z-index: 1; min-width: 20px; height: 20px; padding: 0 6px;
+      border-radius: 999px; font-size: 11px; font-weight: 700; line-height: 20px; text-align: center;
+      background: #fff; color: var(--forest); box-shadow: 0 1px 4px rgba(0,0,0,.15);
+    }
+    .day .cnt.top { background: var(--forest); color: #fff; }
+    .cal-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 12px; font-size: 13px; color: var(--text-2); }
+    .cal-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .cal-legend i { width: 6px; height: 6px; border-radius: 50%; background: var(--forest); flex: none; }
+    .cal-key { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; color: var(--text-2); margin: 0 0 4px; }
+    .cal-key span { display: inline-flex; align-items: center; gap: 6px; }
+    .cal-key b { display: inline-block; width: 16px; height: 16px; border-radius: 5px; }
 
     /* ---------- แถบปุ่มด้านล่างฟอร์ม ---------- */
     .actions {
@@ -261,9 +277,8 @@
       .emoji-row { margin-bottom: 4px; }
       .fire { font-size: 46px; }
       .section { padding: 20px 16px; border-radius: 24px; }
-      .date-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-      .date-card { min-height: 96px; padding: 14px 12px 12px; }
-      .date-card .days { font-size: 22px; }
+      .cal { padding: 10px 6px; }
+      .day { height: 46px; font-size: 15px; }
       /* แถบปุ่มบนมือถือให้เหลือแถวเดียว จะได้ไม่บังช่องกรอกชื่อ */
       .actions { flex-wrap: nowrap; gap: 8px; padding: 8px 8px 8px 14px; bottom: calc(10px + env(safe-area-inset-bottom)); }
       .picked { font-size: 13px; white-space: nowrap; }
@@ -318,7 +333,7 @@
           <p class="eyebrow">ขั้นที่ 1</p>
           <h2>เลือกวันที่ว่าง</h2>
         </div>
-        <span class="muted">เลือกได้มากกว่า 1 วันนะ</span>
+        <span class="muted">แตะช่วงวันที่ว่าง เลือกได้หลายช่วง</span>
       </div>
 
       <div class="field">
@@ -327,6 +342,11 @@
       </div>
       <p class="hint" id="nameHint">พิมพ์ชื่อเดิมที่เคยโหวต จะดึงวันที่เลือกไว้มาให้แก้ได้เลย</p>
 
+      <div class="cal-key">
+        <span><b style="background:#fff1e3"></b>วันที่ให้เลือก</span>
+        <span><b style="background:var(--fire)"></b>ที่คุณเลือก</span>
+        <span><b style="background:var(--forest);border-radius:50%"></b>จำนวนเพื่อนที่ว่าง</span>
+      </div>
       <div id="dateGroups"></div>
 
       <div class="actions">
@@ -557,38 +577,91 @@
     let loadedFor = "";             // docId ของคนที่โหลดโหวตเดิมมาแล้ว (กันโหลดทับตอนกำลังแก้)
 
     /* =========================================================
-       วาดการ์ดวันที่ (ทำครั้งเดียว)
+       วาดปฏิทิน (ทำครั้งเดียว)
+       - แต่ละช่วงวัน (เช่น 5–6–7) จะไฮไลต์ต่อกันเป็นแถบ
+       - แตะวันไหนในช่วงก็ได้ = เลือก/ยกเลิกทั้งช่วง
+       - สัปดาห์เริ่มวันจันทร์ เสาร์–อาทิตย์จะได้อยู่ติดกัน
        ========================================================= */
-    function renderDateCards() {
-      $("dateGroups").innerHTML = MONTHS.map(m => `
-        <div class="month">
-          <h3 class="month-title">${m.emoji} ${esc(m.label)}</h3>
-          <div class="date-grid">
-            ${m.dates.map(d => `
-              <button type="button" class="date-card" data-id="${esc(d.id)}" aria-pressed="false">
-                <span class="check"><span>✓</span></span>
-                <div class="days">${esc(d.days)}</div>
-                <div class="mon">${esc(m.short)} · เสาร์–อาทิตย์</div>
-                ${d.note ? `<span class="note">${esc(d.note)}</span>` : ""}
-              </button>`).join("")}
-          </div>
-        </div>`).join("");
+    const WEEKDAYS = ["จ", "อ", "พ", "พฤ", "ศ", "ส", "อา"];
+
+    // หาว่าแต่ละช่วงครอบวันที่ไหนบ้าง: ดูจากวันแรกใน id และเลขตัวแรก-ตัวสุดท้ายใน days
+    // เช่น id "2027-01-01" + days "1–4" = 1, 2, 3, 4 ม.ค.
+    function optionDays(d) {
+      const nums = d.days.match(/\d+/g).map(Number);
+      const len = nums[nums.length - 1] - nums[0] + 1;
+      const [y, mo, da] = d.id.split("-").map(Number);
+      return Array.from({ length: len }, (_, i) => new Date(y, mo - 1, da + i));
+    }
+    const dayKey = (dt) => `${dt.getFullYear()}-${dt.getMonth() + 1}-${dt.getDate()}`;
+
+    // แผนที่ "วัน" → ช่วงวันที่มันอยู่
+    const DAY_TO_OPT = {};
+    ALL_DATES.forEach(d => optionDays(d).forEach((dt, i, arr) => {
+      DAY_TO_OPT[dayKey(dt)] = { opt: d, first: i === 0, last: i === arr.length - 1 };
+    }));
+
+    function renderCalendar() {
+      $("dateGroups").innerHTML = MONTHS.map(m => {
+        const [y, mo] = m.key.split("-").map(Number);
+        const daysInMonth = new Date(y, mo, 0).getDate();
+        const lead = (new Date(y, mo - 1, 1).getDay() + 6) % 7; // ช่องว่างก่อนวันที่ 1 (จันทร์ = 0)
+        let cells = "";
+        for (let i = 0; i < lead; i++) cells += `<span class="day"></span>`;
+        for (let day = 1; day <= daysInMonth; day++) {
+          const col = (lead + day - 1) % 7;
+          const hit = DAY_TO_OPT[dayKey(new Date(y, mo - 1, day))];
+          if (!hit) { cells += `<span class="day">${day}</span>`; continue; }
+          const cls = ["day", "opt",
+            (hit.first || col === 0) && "r-start",
+            (hit.last || col === 6) && "r-end",
+            hit.opt.note && "has-note"].filter(Boolean).join(" ");
+          const label = `${hit.opt.days} ${m.short}${hit.opt.note ? " (" + hit.opt.note + ")" : ""}`;
+          cells += `<button type="button" class="${cls}" data-id="${esc(hit.opt.id)}" ${hit.first ? "data-first" : ""}
+            aria-pressed="false" aria-label="${esc(label)}">${day}</button>`;
+        }
+        const notes = m.dates.filter(d => d.note)
+          .map(d => `<span><i></i>${esc(d.days)} ${esc(d.note)}</span>`).join("");
+        return `
+          <div class="month">
+            <h3 class="month-title">${m.emoji} ${esc(m.label)}</h3>
+            <div class="cal">
+              <div class="cal-head">${WEEKDAYS.map((w, i) => `<span class="${i >= 5 ? "we" : ""}">${w}</span>`).join("")}</div>
+              <div class="cal-grid">${cells}</div>
+              ${notes ? `<div class="cal-legend">${notes}</div>` : ""}
+            </div>
+          </div>`;
+      }).join("");
 
       $("dateGroups").addEventListener("click", (e) => {
-        const card = e.target.closest(".date-card");
-        if (!card) return;
-        const id = card.dataset.id;
+        const cell = e.target.closest(".day.opt");
+        if (!cell) return;
+        const id = cell.dataset.id;
         selected.has(id) ? selected.delete(id) : selected.add(id);
         syncSelection();
       });
     }
 
-    // อัปเดตหน้าตาการ์ดตามวันที่เลือก + ตัวนับ
+    // ใส่ป้ายจำนวนคนที่ว่างบนวันแรกของแต่ละช่วง (เรียกทุกครั้งที่ผลโหวตเปลี่ยน)
+    function renderCalendarCounts(tally, max) {
+      document.querySelectorAll(".day.opt[data-first]").forEach(cell => {
+        cell.querySelector(".cnt")?.remove();
+        const t = tally.find(x => x.id === cell.dataset.id);
+        const n = t ? t.people.length : 0;
+        if (!n) return;
+        const badge = document.createElement("span");
+        badge.className = "cnt" + (n === max ? " top" : "");
+        badge.textContent = n;
+        badge.title = t.people.join(", ");
+        cell.appendChild(badge);
+      });
+    }
+
+    // อัปเดตหน้าตาปฏิทินตามวันที่เลือก + ตัวนับ
     function syncSelection() {
-      document.querySelectorAll(".date-card").forEach(card => {
-        const on = selected.has(card.dataset.id);
-        card.classList.toggle("selected", on);
-        card.setAttribute("aria-pressed", on);
+      document.querySelectorAll(".day.opt").forEach(cell => {
+        const on = selected.has(cell.dataset.id);
+        cell.classList.toggle("selected", on);
+        cell.setAttribute("aria-pressed", on);
       });
       $("pickedCount").textContent = selected.size;
     }
@@ -698,6 +771,8 @@
       const max = Math.max(0, ...tally.map(t => t.people.length));
       const winners = max > 0 ? tally.filter(t => t.people.length === max) : [];
 
+      renderCalendarCounts(tally, max);
+
       $("statVoters").textContent = total;
       $("statTop").textContent = total ? `${max}/${total}` : "0";
       $("statDates").textContent = ALL_DATES.length;
@@ -788,7 +863,7 @@
     /* =========================================================
        เริ่มต้นใช้งาน
        ========================================================= */
-    renderDateCards();
+    renderCalendar();
     syncSelection();
     renderResults();
     renderVoters();
