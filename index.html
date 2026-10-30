@@ -62,7 +62,7 @@
       max-width: 980px; margin: 0 auto; padding: 12px 20px;
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
     }
-    .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 17px; }
+    .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 17px; white-space: nowrap; }
     .nav-links { display: flex; gap: 4px; }
     .nav-links a {
       color: var(--text-2); text-decoration: none; font-size: 14px;
@@ -255,20 +255,31 @@
     /* ---------- มือถือ ---------- */
     @media (max-width: 640px) {
       .nav-links { display: none; }
-      .hero { padding: 36px 0 24px; }
-      .fire { font-size: 54px; }
+      .hero { padding: 24px 0 18px; }
+      .hero h1 { margin: 6px 0 8px; }
+      .hero p { font-size: 15px; margin-bottom: 12px; }
+      .emoji-row { margin-bottom: 4px; }
+      .fire { font-size: 46px; }
       .section { padding: 20px 16px; border-radius: 24px; }
       .date-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
       .date-card { min-height: 96px; padding: 14px 12px 12px; }
       .date-card .days { font-size: 22px; }
-      .actions { border-radius: 22px; padding: 12px; bottom: calc(10px + env(safe-area-inset-bottom)); }
-      .picked { width: 100%; text-align: center; }
-      .btns { width: 100%; margin-left: 0; }
-      .btns .btn { flex: 1; }
-      .btns .btn-fire { flex: 2; }
+      /* แถบปุ่มบนมือถือให้เหลือแถวเดียว จะได้ไม่บังช่องกรอกชื่อ */
+      .actions { flex-wrap: nowrap; gap: 8px; padding: 8px 8px 8px 14px; bottom: calc(10px + env(safe-area-inset-bottom)); }
+      .picked { font-size: 13px; white-space: nowrap; }
+      .picked b { font-size: 16px; }
+      .btns { gap: 6px; }
+      .btn { font-size: 14px; padding: 10px 14px; }
       .stats { gap: 8px; }
       .stat { padding: 12px; }
       .stat .n { font-size: 22px; }
+    }
+
+    /* จอเล็กมาก (เช่น iPhone SE รุ่นแรก) ย่อแถบปุ่มลงอีก */
+    @media (max-width: 360px) {
+      .picked-label { display: none; }
+      .actions { padding-left: 12px; }
+      .btn { padding: 10px 11px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -319,7 +330,7 @@
       <div id="dateGroups"></div>
 
       <div class="actions">
-        <div class="picked">เลือกแล้ว <b id="pickedCount">0</b> วัน</div>
+        <div class="picked"><span class="picked-label">เลือกแล้ว </span><b id="pickedCount">0</b> วัน</div>
         <div class="btns">
           <button class="btn btn-ghost" id="clearBtn" type="button">ล้างที่เลือก</button>
           <button class="btn btn-fire" id="saveBtn" type="button">บันทึกโหวต 🔥</button>
