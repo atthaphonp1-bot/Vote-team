@@ -162,13 +162,20 @@
       border-radius: 50%; background: var(--forest);
     }
     .day.opt.selected.has-note::after { background: #fff; }
+    /* ช่วงที่เพื่อนว่างตรงกันมากที่สุด = สีเขียว (ถ้าเราเลือกด้วยจะเป็นเขียวเข้ม) */
+    .day.opt.best { background: #d4f0dd; color: #1f5a38; }
+    .day.opt.best:hover { background: #c2e8cf; }
+    .day.opt.best.selected { background: var(--forest); color: #fff; }
+    .day.opt.best.selected:hover { background: #276b43; }
+    .day.opt.best.has-note::after { background: #1f5a38; }
+    .day.opt.best.selected.has-note::after { background: #fff; }
     /* ป้ายจำนวนคนที่ว่าง (แสดงที่วันแรกของแต่ละช่วง) */
     .day .cnt {
       position: absolute; top: -6px; right: -2px; z-index: 1; min-width: 20px; height: 20px; padding: 0 6px;
       border-radius: 999px; font-size: 11px; font-weight: 700; line-height: 20px; text-align: center;
       background: #fff; color: var(--forest); box-shadow: 0 1px 4px rgba(0,0,0,.15);
     }
-    .day .cnt.top { background: var(--forest); color: #fff; }
+    .day .cnt.top { background: var(--forest); color: #fff; box-shadow: 0 0 0 2px #fff, 0 1px 4px rgba(0,0,0,.2); }
     .cal-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 12px; font-size: 13px; color: var(--text-2); }
     .cal-legend span { display: inline-flex; align-items: center; gap: 6px; }
     .cal-legend i { width: 6px; height: 6px; border-radius: 50%; background: var(--forest); flex: none; }
@@ -243,15 +250,15 @@
     .result-count { font-size: 14px; color: var(--text-2); white-space: nowrap; }
     .result-count b { color: var(--text); font-size: 16px; }
     .bar { height: 10px; border-radius: 999px; background: rgba(0,0,0,0.06); overflow: hidden; }
-    .bar > i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #6fcf97, var(--forest)); transition: width .8s var(--ease); }
-    .result.top .bar > i { background: var(--fire-grad); }
-    .result.top .result-name::before { content: "🔥 "; }
-    .result.top { background: linear-gradient(90deg, rgba(255,179,64,.10), transparent 70%); margin: 0 -14px; padding: 14px; border-radius: var(--radius-md); border-top-color: transparent; }
+    .bar > i { display: block; height: 100%; width: 0; border-radius: inherit; background: #c7c7cc; transition: width .8s var(--ease); }
+    .result.top .bar > i { background: linear-gradient(90deg, #6fcf97, var(--forest)); }
+    .result.top .result-name::before { content: "✅ "; }
+    .result.top { background: linear-gradient(90deg, rgba(52,168,83,.12), transparent 70%); margin: 0 -14px; padding: 14px; border-radius: var(--radius-md); border-top-color: transparent; }
     .result.top + .result { border-top-color: transparent; }
 
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
     .chip { font-size: 13px; font-weight: 500; padding: 4px 11px; border-radius: 999px; background: rgba(0,0,0,0.05); color: var(--text); }
-    .result.top .chip { background: #fff1e3; color: #a24a07; }
+    .result.top .chip { background: #e3f4e9; color: #1f5a38; }
 
     /* ---------- รายชื่อคนที่โหวตแล้ว ---------- */
     .voters { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
@@ -345,6 +352,7 @@
       <div class="cal-key">
         <span><b style="background:#fff1e3"></b>วันที่ให้เลือก</span>
         <span><b style="background:var(--fire)"></b>ที่คุณเลือก</span>
+        <span><b style="background:#d4f0dd"></b>ว่างตรงกันมากสุด</span>
         <span><b style="background:var(--forest);border-radius:50%"></b>จำนวนเพื่อนที่ว่าง</span>
       </div>
       <div id="dateGroups"></div>
@@ -641,8 +649,11 @@
       });
     }
 
-    // ใส่ป้ายจำนวนคนที่ว่างบนวันแรกของแต่ละช่วง (เรียกทุกครั้งที่ผลโหวตเปลี่ยน)
+    // ไฮไลต์ช่วงที่ว่างตรงกันมากสุดเป็นสีเขียว + ใส่ป้ายจำนวนคนที่ว่างบนวันแรกของแต่ละช่วง
+    // (เรียกทุกครั้งที่ผลโหวตเปลี่ยน)
     function renderCalendarCounts(tally, max) {
+      const best = new Set(max > 0 ? tally.filter(t => t.people.length === max).map(t => t.id) : []);
+      document.querySelectorAll(".day.opt").forEach(cell => cell.classList.toggle("best", best.has(cell.dataset.id)));
       document.querySelectorAll(".day.opt[data-first]").forEach(cell => {
         cell.querySelector(".cnt")?.remove();
         const t = tally.find(x => x.id === cell.dataset.id);
