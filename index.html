@@ -233,6 +233,10 @@
     .winner .label { font-size: 13px; font-weight: 600; opacity: .8; }
     .winner .title { font-size: clamp(24px, 5vw, 34px); font-weight: 800; letter-spacing: -0.02em; margin: 4px 0 6px; }
     .winner .sub { font-size: 15px; opacity: .9; }
+    /* ยังไม่มีวันที่ทุกคนว่างตรงกัน = กล่องสีส้ม */
+    .winner.partial { background: radial-gradient(120% 140% at 0% 0%, #ffb340 0%, #ff8a2a 50%, #e5622f 100%); }
+    .winner .missing { margin-top: 10px; font-size: 14px; }
+    .winner .missing span { display: inline-block; margin: 4px 4px 0 0; padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,.25); font-weight: 600; }
     .winner.empty { background: var(--surface-2); color: var(--text-2); border: 1.5px dashed var(--line); }
     .winner.empty::after { opacity: .12; }
 
@@ -358,7 +362,7 @@
       <div id="dateGroups"></div>
 
       <div class="actions">
-        <div class="picked"><span class="picked-label">เลือกแล้ว </span><b id="pickedCount">0</b> วัน</div>
+        <div class="picked"><span class="picked-label">เลือกแล้ว </span><b id="pickedCount">0</b> ช่วง</div>
         <div class="btns">
           <button class="btn btn-ghost" id="clearBtn" type="button">ล้างที่เลือก</button>
           <button class="btn btn-fire" id="saveBtn" type="button">บันทึกโหวต 🔥</button>
@@ -689,13 +693,17 @@
         hint.className = "hint";
         hint.textContent = "พิมพ์ชื่อเดิมที่เคยโหวต จะดึงวันที่เลือกไว้มาให้แก้ได้เลย";
         loadedFor = "";
+        setSaveLabel();
         return;
       }
       const id = nameToId(name);
       const existing = votes.find(v => v.id === id);
       if (existing) {
         hint.className = "hint edit";
-        hint.innerHTML = `👋 เจอโหวตของ <b>${esc(existing.name)}</b> แล้ว แก้วันที่แล้วกดบันทึกทับได้เลย`;
+        const welcomeBack = nameToId(myName()) === id;
+        hint.innerHTML = welcomeBack
+          ? `👋 ยินดีต้อนรับกลับ <b>${esc(existing.name)}</b> นี่คือวันที่เคยเลือกไว้ แตะเพื่อแก้แล้วกด <b>อัปเดตโหวต</b> ได้เลย`
+          : `👋 เจอโหวตของ <b>${esc(existing.name)}</b> แล้ว แก้วันที่แล้วกด <b>อัปเดตโหวต</b> ได้เลย`;
         // โหลดโหวตเดิมเฉพาะครั้งแรกที่เจอชื่อนี้ จะได้ไม่ทับสิ่งที่กำลังแก้
         if (loadedFor !== id) {
           loadedFor = id;
@@ -709,6 +717,23 @@
         // ถ้าก่อนหน้านี้โหลดโหวตของคนอื่นไว้ ให้ล้างออก จะได้ไม่ติดวันของคนเก่ามา
         if (loadedFor) { loadedFor = ""; clearSelection(); }
       }
+      setSaveLabel();
+    }
+
+    /* =========================================================
+       จำชื่อของเราไว้ในเครื่องนี้ กลับมาเปิดลิงก์อีกทีจะโหลดโหวตเดิมให้แก้ทันที
+       (เก็บแค่ชื่อใน localStorage ของเครื่องตัวเอง ถ้าเบราว์เซอร์ไม่ให้เก็บก็แค่ไม่จำ)
+       ========================================================= */
+    const ME_KEY = "camp-vote-me";
+    const rememberMe = (name) => { try { localStorage.setItem(ME_KEY, name); } catch {} };
+    const forgetMe = () => { try { localStorage.removeItem(ME_KEY); } catch {} };
+    const myName = () => { try { return localStorage.getItem(ME_KEY) || ""; } catch { return ""; } };
+
+    // ถ้าชื่อนี้เคยโหวตแล้ว ปุ่มจะเป็น "อัปเดตโหวต" แทน "บันทึกโหวต"
+    function setSaveLabel() {
+      const name = cleanName($("nameInput").value);
+      const isUpdate = !!name && votes.some(v => v.id === nameToId(name));
+      $("saveBtn").textContent = isUpdate ? "อัปเดตโหวต ✏️" : "บันทึกโหวต 🔥";
     }
 
     /* =========================================================
@@ -730,14 +755,16 @@
         const isUpdate = votes.some(v => v.id === nameToId(name));
         await store.save(name, dates);
         loadedFor = nameToId(name);
-        showMsg("ok", `${isUpdate ? "อัปเดต" : "บันทึก"}โหวตของ <b>${esc(name)}</b> แล้ว ${dates.length} วัน 🎉 เจอกันรอบกองไฟ!`);
+        rememberMe(name);
+        showMsg("ok", `${isUpdate ? "อัปเดต" : "บันทึก"}โหวตของ <b>${esc(name)}</b> แล้ว ${dates.length} ช่วง 🎉
+          <br>อยากเปลี่ยนใจทีหลัง เปิดลิงก์นี้อีกครั้ง วันที่เลือกไว้จะขึ้นมาให้แก้เลย`);
       } catch (err) {
         console.error(err);
         // แสดงรหัส error ให้เห็นบนหน้าเว็บ
         showMsg("err", `บันทึกไม่สำเร็จ 😢 รหัส error: <code>${esc(err?.code || err?.name || "unknown")}</code>`);
       } finally {
         btn.disabled = false;
-        btn.textContent = "บันทึกโหวต 🔥";
+        setSaveLabel();
       }
     }
 
@@ -761,6 +788,7 @@
       try {
         await store.remove(id);
         if (loadedFor === id) { loadedFor = ""; clearSelection(); }
+        if (nameToId(myName()) === id) forgetMe();
         showMsg("ok", `ลบโหวตของ <b>${esc(v.name)}</b> แล้ว`);
       } catch (err) {
         console.error(err);
@@ -796,11 +824,24 @@
       } else {
         const names = winners.map(t => `${t.days} ${t.month}`).join(" · ");
         const allFree = max === total;
-        w.className = "winner";
-        w.innerHTML = `
-          <div class="label">${winners.length > 1 ? "🏆 ตอนนี้มีวันที่คะแนนเท่ากัน" : "🏆 วันที่ว่างตรงกันมากที่สุด"}</div>
-          <div class="title">${esc(names)}</div>
-          <div class="sub">${allFree ? "ว่างครบทุกคน! จองลานกางเต็นท์ได้เลย 🍖" : `ว่าง ${max} จาก ${total} คน`}</div>`;
+        if (allFree) {
+          w.className = "winner";
+          w.innerHTML = `
+            <div class="label">${winners.length > 1 ? "🏆 มีหลายช่วงที่ทุกคนว่าง" : "🏆 เจอวันที่ทุกคนว่างตรงกันแล้ว!"}</div>
+            <div class="title">${esc(names)}</div>
+            <div class="sub">ว่างครบทุกคน ${total} คน จองลานกางเต็นท์ได้เลย 🍖</div>`;
+        } else {
+          // ยังไม่มีวันที่ทุกคนว่าง: บอกช่วงที่ใกล้สุด และใครยังไม่ว่างช่วงนั้น
+          const missing = winners.length === 1
+            ? votes.map(v => v.name).filter(n => !winners[0].people.includes(n))
+            : [];
+          w.className = "winner partial";
+          w.innerHTML = `
+            <div class="label">⚠️ ยังไม่มีวันที่ทุกคนว่างตรงกัน</div>
+            <div class="title">ใกล้สุด: ${esc(names)}</div>
+            <div class="sub">ว่าง ${max} จาก ${total} คน${winners.length > 1 ? " (หลายช่วงคะแนนเท่ากัน)" : ""}</div>
+            ${missing.length ? `<div class="missing">ยังไม่ว่างช่วงนี้: ${missing.map(n => `<span>${esc(n)}</span>`).join("")}</div>` : ""}`;
+        }
       }
 
       // แถบกราฟของแต่ละวัน
@@ -842,7 +883,7 @@
               <div class="avatar" style="background:${avatarColor(String(v.name))}">${esc(initial)}</div>
               <div>
                 <div class="voter-name">${esc(v.name)}</div>
-                <div class="voter-meta">ว่าง ${dates.length} วัน · ${esc(timeText(v.updatedAt))}</div>
+                <div class="voter-meta">ว่าง ${dates.length} ช่วง · ${esc(timeText(v.updatedAt))}</div>
               </div>
             </div>
             <div class="chips">${dates.map(id => `<span class="chip">${esc(DATE_MAP[id].days)} ${esc(DATE_MAP[id].month)}</span>`).join("")}</div>
@@ -868,7 +909,7 @@
       renderResults();
       renderVoters();
       // ถ้ากำลังพิมพ์ชื่ออยู่ ให้เช็กอีกรอบเผื่อมีโหวตเดิมเพิ่งโหลดมา
-      if (cleanName($("nameInput").value)) onNameChange();
+      if (cleanName($("nameInput").value)) onNameChange(); else setSaveLabel();
     }
 
     /* =========================================================
@@ -879,6 +920,7 @@
     renderResults();
     renderVoters();
 
+    if (myName()) { $("nameInput").value = myName(); onNameChange(); }
     $("nameInput").addEventListener("input", onNameChange);
     $("nameInput").addEventListener("keydown", (e) => { if (e.key === "Enter") e.target.blur(); });
     $("saveBtn").addEventListener("click", saveVote);
